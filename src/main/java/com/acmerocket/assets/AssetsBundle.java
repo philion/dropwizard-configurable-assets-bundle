@@ -1,4 +1,4 @@
-package com.bazaarvoice.dropwizard.assets;
+package com.acmerocket.assets;
 
 import com.google.common.cache.CacheBuilderSpec;
 import com.yammer.dropwizard.ConfiguredBundle;
@@ -6,6 +6,9 @@ import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -16,7 +19,9 @@ import static com.google.common.base.Preconditions.checkArgument;
  * cached by the browser or the server.  This allows developers to edit an asset, save and then immediately refresh the
  * web browser and see the updated assets.  No compilation or copy steps are necessary.
  */
-public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConfiguration> {
+public class AssetsBundle implements ConfiguredBundle<AssetsBundleConfiguration> {
+    private static final Logger LOG = LoggerFactory.getLogger(AssetsBundle.class);
+
     private static final String DEFAULT_PATH = "/assets";
     protected static final CacheBuilderSpec DEFAULT_CACHE_SPEC = CacheBuilderSpec.parse("maximumSize=100");
     private static final String DEFAULT_INDEX_FILE = "index.htm";
@@ -27,39 +32,39 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
     private final String indexFile;
 
     /**
-     * Creates a new {@link ConfiguredAssetsBundle} which serves up static assets from
+     * Creates a new {@link AssetsBundle} which serves up static assets from
      * {@code src/main/resources/assets/*} as {@code /assets/*}.
      *
-     * @see ConfiguredAssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
+     * @see AssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
      */
-    public ConfiguredAssetsBundle() {
+    public AssetsBundle() {
         this(DEFAULT_PATH, DEFAULT_CACHE_SPEC);
     }
 
     /**
-     * Creates a new {@link ConfiguredAssetsBundle} which will configure the service to serve the static files
+     * Creates a new {@link AssetsBundle} which will configure the service to serve the static files
      * located in {@code src/main/resources/${path}} as {@code /${path}}. For example, given a
      * {@code path} of {@code "/assets"}, {@code src/main/resources/assets/example.js} would be
      * served up from {@code /assets/example.js}.
      *
      * @param path the classpath and URI root of the static asset files
-     * @see ConfiguredAssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
+     * @see AssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
      */
-    public ConfiguredAssetsBundle(String path) {
+    public AssetsBundle(String path) {
         this(path, DEFAULT_CACHE_SPEC, path, DEFAULT_INDEX_FILE);
     }
 
     /**
-     * Creates a new {@link ConfiguredAssetsBundle} which will configure the service to serve the static files
+     * Creates a new {@link AssetsBundle} which will configure the service to serve the static files
      * located in {@code src/main/resources/${resourcePath}} as {@code /${uriPath}}. For example, given a
      * {@code resourcePath} of {@code "/assets"} and a uriPath of {@code "/js"},
      * {@code src/main/resources/assets/example.js} would be served up from {@code /js/example.js}.
      *
      * @param resourcePath the resource path (in the classpath) of the static asset files
      * @param uriPath      the uri path for the static asset files
-     * @see ConfiguredAssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
+     * @see AssetsBundle#ConfiguredAssetsBundle(String, CacheBuilderSpec)
      */
-    public ConfiguredAssetsBundle(String resourcePath, String uriPath) {
+    public AssetsBundle(String resourcePath, String uriPath) {
         this(resourcePath, DEFAULT_CACHE_SPEC, uriPath, DEFAULT_INDEX_FILE);
     }
 
@@ -74,12 +79,12 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
      * @param uriPath             the uri path for the static asset files
      * @param indexFile           the name of the index file to use
      */
-    public ConfiguredAssetsBundle(String resourcePath, String uriPath, String indexFile) {
+    public AssetsBundle(String resourcePath, String uriPath, String indexFile) {
         this(resourcePath, DEFAULT_CACHE_SPEC, uriPath, indexFile);
     }
     
     /**
-     * Creates a new {@link ConfiguredAssetsBundle} which will configure the service to serve the static files
+     * Creates a new {@link AssetsBundle} which will configure the service to serve the static files
      * located in {@code src/main/resources/${path}} as {@code /${path}}. For example, given a
      * {@code path} of {@code "/assets"}, {@code src/main/resources/assets/example.js} would be
      * served up from {@code /assets/example.js}.
@@ -87,12 +92,12 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
      * @param resourcePath     the resource path (in the classpath) of the static asset files
      * @param cacheBuilderSpec the spec for the cache builder
      */
-    public ConfiguredAssetsBundle(String resourcePath, CacheBuilderSpec cacheBuilderSpec) {
+    public AssetsBundle(String resourcePath, CacheBuilderSpec cacheBuilderSpec) {
         this(resourcePath, cacheBuilderSpec, resourcePath, DEFAULT_INDEX_FILE);
     }
 
     /**
-     * Creates a new {@link ConfiguredAssetsBundle} which will configure the service to serve the static files
+     * Creates a new {@link AssetsBundle} which will configure the service to serve the static files
      * located in {@code src/main/resources/${resourcePath}} as {@code /${uriPath}}. For example, given a
      * {@code resourcePath} of {@code "/assets"} and a uriPath of {@code "/js"},
      * {@code src/main/resources/assets/example.js} would be served up from {@code /js/example.js}.
@@ -101,13 +106,15 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
      * @param cacheBuilderSpec the spec for the cache builder
      * @param uriPath          the uri path for the static asset files
      */
-    public ConfiguredAssetsBundle(String resourcePath, CacheBuilderSpec cacheBuilderSpec, String uriPath, String indexFile) {
+    public AssetsBundle(String resourcePath, CacheBuilderSpec cacheBuilderSpec, String uriPath, String indexFile) {
         checkArgument(resourcePath.startsWith("/"), "%s is not an absolute path", resourcePath);
         checkArgument(!"/".equals(resourcePath), "%s is the classpath root", resourcePath);
         this.resourcePath = resourcePath.endsWith("/") ? resourcePath : (resourcePath + '/');
         this.cacheBuilderSpec = cacheBuilderSpec;
         this.uriPath = uriPath.endsWith("/") ? uriPath : (uriPath + '/');
         this.indexFile = indexFile;
+        
+        LOG.debug("Constructed {}", this);
     }
 
     @Override
@@ -126,6 +133,10 @@ public class ConfiguredAssetsBundle implements ConfiguredBundle<AssetsBundleConf
     }
 
     @Override
-    public void initialize(Bootstrap<?> bootstrap) {
+    public void initialize(Bootstrap<?> bootstrap) { /* no-op */ }
+    
+    public String toString() {
+        return "AssetBundle[resource=" + this.resourcePath + ", uri=" + this.uriPath 
+                + ", index=" + this.indexFile + "]";
     }
 }

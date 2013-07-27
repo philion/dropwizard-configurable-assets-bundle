@@ -1,9 +1,10 @@
-package com.bazaarvoice.dropwizard.assets;
+package com.acmerocket.assets;
 
-import com.google.common.cache.CacheBuilderSpec;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.net.HttpHeaders;
+import static org.fest.assertions.api.Assertions.assertThat;
+
 import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -11,9 +12,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.fest.assertions.api.Assertions.assertThat;
+import com.google.common.cache.CacheBuilderSpec;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.net.HttpHeaders;
+import com.acmerocket.assets.AssetServlet;
 
 public class AssetServletTest {
     private static final CacheBuilderSpec DEFAULT_CACHE_SPEC = CacheBuilderSpec.parse("maximumSize=100");

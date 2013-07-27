@@ -1,4 +1,4 @@
-package com.bazaarvoice.dropwizard.assets;
+package com.acmerocket.assets;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -14,14 +14,18 @@ import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
 import com.google.common.net.MediaType;
 import com.yammer.dropwizard.assets.ResourceURL;
+
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.Buffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -35,6 +39,8 @@ import java.util.Map;
  * @see com.yammer.dropwizard.assets.AssetServlet
  */
 class AssetServlet extends HttpServlet {
+    private static final Logger LOG = LoggerFactory.getLogger(AssetServlet.class);
+
     private static final long serialVersionUID = 6393345594784987908L;
     private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.HTML_UTF_8;
     private static final String DEFAULT_INDEX_FILE = "index.htm";
@@ -100,12 +106,14 @@ class AssetServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOG.trace("doGet: req={}, resp={}", req, resp);
         try {
             final StringBuilder builder = new StringBuilder(req.getServletPath());
             if (req.getPathInfo() != null) {
                 builder.append(req.getPathInfo());
             }
-            Asset asset = cache.getUnchecked(builder.toString());
+            String requestPath = builder.toString();
+            Asset asset = cache.getUnchecked(requestPath);
             if (asset == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

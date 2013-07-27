@@ -1,4 +1,4 @@
-package com.bazaarvoice.dropwizard.assets;
+package com.acmerocket.assets;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -10,7 +10,7 @@ import java.util.Map;
 public class AssetsConfiguration {
     @NotNull
     @JsonProperty
-    private String cacheSpec = ConfiguredAssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
+    private String cacheSpec = AssetsBundle.DEFAULT_CACHE_SPEC.toParsableString();
 
     @NotNull
     @JsonProperty
